@@ -606,6 +606,8 @@ check_man: ${ALL_MAN_TARGETS}
 # install man pages
 #
 install_man: ${ALL_MAN_TARGETS}
+	${I} ${INSTALL} ${INSTALL_V} -d -m 0775 ${MAN1_DIR}
+	${I} ${INSTALL} ${INSTALL_V} -m 0444 ${MAN1_TARGETS} ${MAN1_DIR}
 	${I} ${INSTALL} ${INSTALL_V} -d -m 0775 ${MAN3_DIR}
 	${I} ${INSTALL} ${INSTALL_V} -m 0444 ${MAN3_TARGETS} ${MAN3_DIR}
 

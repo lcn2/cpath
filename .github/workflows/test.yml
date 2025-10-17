@@ -1,0 +1,53 @@
+name: C CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+    - name: install ctags
+      run: sudo apt-get install -y universal-ctags
+    - name: clone independ
+      run: git clone https://github.com/lcn2/independ
+    - name: install independ
+      run: cd independ && sudo make install
+    - name: clone checknr
+      run: git clone https://github.com/lcn2/checknr.git
+    - name: install checknr
+      run: cd checknr && sudo make install
+    - name: clone picky
+      run: git clone https://github.com/lcn2/picky
+    - name: install picky
+      run: cd picky && sudo make install
+    - name: clone dbg
+      run: git clone https://github.com/lcn2/dbg
+    - name: install dbg
+      run: cd dbg && sudo make clobber all install
+    - name: clone dyn_array
+      run: git clone https://github.com/lcn2/dyn_array
+    - name: install dyn_array
+      run: cd dyn_array && sudo make clobber all install
+    - name: clone pr
+      run: git clone https://github.com/lcn2/pr
+    - name: install pr
+      run: cd pr && sudo make clobber all install
+    - name: make all
+      run: make all
+    - name: make
+      run: make
+    - name: make VERBOSITY=7 test
+      run: make VERBOSITY=7  test
+    - name: make picky
+      run: make picky
+    - name: make check_man
+      run: make check_man
+    - name: make depend
+      run: make depend

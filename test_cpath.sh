@@ -2,13 +2,11 @@
 #
 # cpath - canonicalize paths
 #
-#  "All that is gold does not glitter,
-#   Not all those who wander are lost."
+# "... not all those who wander are lost."
 #
 #      -- J.R.R. Tolkien
 #
-# Copyright (c) 1991-2025 by Landon Curt Noll and Cody Boone Ferguson.
-# All Rights Reserved.
+# Copyright (c) 1991,2008,2014-2016,2022-2025 by Landon Curt Noll.  All Rights Reserved.
 #
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby granted,
@@ -27,12 +25,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
-# This code was developed between 1991-2025 by Landon Curt Noll and Cody Boone:
+# This code was developed between 1991-2025 by Landon Curt Noll:
 #
-#	@xexyl
-#	https://xexyl.net		Cody Boone Ferguson
-#	https://ioccc.xexyl.net
-# and:
 #	chongo (Landon Curt Noll, http://www.isthe.com/chongo/index.html) /\oo/\
 #
 # Share and enjoy! :-)

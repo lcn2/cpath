@@ -1,11 +1,11 @@
 /*
  * cpath - canonicalize paths
  *
- * "Not all those who wander are lost."
+ * "... not all those who wander are lost."
  *
  *      -- J.R.R. Tolkien
  *
- * Copyright (c) 1991-2025 by Landon Curt Noll.  All Rights Reserved.
+ * Copyright (c) 1991,2008,2014-2016,2022-2025 by Landon Curt Noll.  All Rights Reserved.
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation for any purpose and without fee is hereby granted,

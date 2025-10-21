@@ -24,5 +24,3 @@ page and the `README.md` file.
 Added various bug fixes.
 
 Added `test_cpath.sh`, `make test` and test files.
-
-Ran `make clobber tags picky seqcexit check_man all test` to test the above.

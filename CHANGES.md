@@ -1,6 +1,4 @@
-# Significant changes in the cpath repo (since 2.0.0 2025-10-16)
-
-## Release 2.8.0 2025-10-16
+## Release 2.0.0 2025-10-16
 
 Improve `.gitignore` and sort the contents.
 

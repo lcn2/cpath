@@ -29,6 +29,19 @@
  *	chongo (Landon Curt Noll, http://www.isthe.com/chongo/index.html) /\oo/\
  *
  * Share and enjoy! :-)
+ *
+ * We gratefully acknowledge the concept contributions, plus the documentation
+ * corrections, and other suggestions made by Cody Boone Ferguson:
+ *
+ *	@xexyl
+ *	https://xexyl.net
+ *	https://ioccc.xexyl.net
+ *
+ * for whom the first part of the above quote applies:
+ *
+ * "All that is gold does not glitter, ..."
+ *
+ *      -- J.R.R. Tolkien
  */
 
 

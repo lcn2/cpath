@@ -564,7 +564,7 @@ canon_path(char const *orig_path,
     struct dyn_array *array = NULL;	/* dynamic array of pointers to strings - path component stack */
     char *p = NULL;		/* path component */
     char **q = NULL;		/* address of a dynamic array string element */
-    int_least32_t deep = 0;		/* path depth (see note above this function) */
+    int_least32_t deep = 0;	/* path depth (see note above this function) */
     bool test = true;		/* true ==> passed test, false == failed test */
     int regexec_ret = 0;	/* regexec(3) return code */
     char *ret_path = NULL;	/* malloced canonicalized path to return */

@@ -123,7 +123,7 @@ static int exit_code = 0;		/* exit with this code */
 /*
  * forward declarations
  */
-static void process_sanity(char const *cpath, enum path_sanity sanity, size_t path_len, int32_t deep);
+static void process_sanity(char const *cpath, enum path_sanity sanity, size_t path_len, int_least32_t deep);
 static void usage(int exitcode, char const *prog, char const *str);
 
 
@@ -134,13 +134,13 @@ main(int argc, char *argv[])
     bool opt_error = false;	/* fchk_inval_opt() return */
     size_t max_path_len = 0;	/* max canonicalized path length, 0 ==> no limit */
     size_t max_filename_len = 0; /* max length of each component of path, 0 ==> no limit */
-    int32_t max_depth = 0;	/* max canonicalized path depth where 0 is the topdir, 0 ==> no limit */
+    int_least32_t max_depth = 0;	/* max canonicalized path depth where 0 is the topdir, 0 ==> no limit */
     bool only_relative = false;	/* true ==> true ==> path from "/" (slash) NOT allowed, false ==> absolute paths allowed */
     bool lower_case = false;	/* true ==> convert UPPER CASE to lower case, false ==> don't change path case */
     bool safe_chk = false;	/* true ==> safety test each canonical path component, false ==> don't check */
     bool dotdot_err = false;	/* true ==> PATH_ERR_DOTDOT_OVER_TOPDIR if '..' (dot-dot) moves before start of path */
     size_t path_len = 0;	/* full path length */
-    int32_t deep = 0;		/* dynamic array stack depth */
+    int_least32_t deep = 0;		/* dynamic array stack depth */
     char *line = NULL;		/* stdin readline() buffer */
     ssize_t readline_ret = 0;	/* return from readline() */
     char *cpath = NULL;		/* malloced canonicalized path */
@@ -197,9 +197,9 @@ main(int argc, char *argv[])
 	    break;
 	case 'd':
 	    errno = 0;
-	    max_depth = (int32_t) strtol(optarg, NULL, 0);
+	    max_depth = (int_least32_t) strtol(optarg, NULL, 0);
 	    if (errno != 0) {
-		errp(3, program, "unable to convert -d %s into a int32_t", optarg); /*ooo*/
+		errp(3, program, "unable to convert -d %s into an int_least32_t", optarg); /*ooo*/
 		not_reached();
 	    }
 	    break;
@@ -404,7 +404,7 @@ main(int argc, char *argv[])
  *	deep	    dynamic array stack depth
  */
 static void
-process_sanity(char const *cpath, enum path_sanity sanity, size_t path_len, int32_t deep)
+process_sanity(char const *cpath, enum path_sanity sanity, size_t path_len, int_least32_t deep)
 {
 
     /*

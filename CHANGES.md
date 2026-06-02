@@ -1,3 +1,9 @@
+## Release 2.0.2 2026-06-02
+
+Don't use `INT32_MAX` but rather `INT_LEAST32_MAX` in code, to correspond to the
+`int_least32_t`.
+
+
 ## Release 2.0.1 2025-10-23
 
 Change `int32_t` (which is not required by the standard to exist) to

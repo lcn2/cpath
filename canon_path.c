@@ -31,7 +31,7 @@
  * Share and enjoy! :-)
  *
  * We gratefully acknowledge the concept contributions, plus the documentation
- * corrections, and other suggestions made by Cody Boone Ferguson:
+ * and code corrections, and other suggestions made by Cody Boone Ferguson:
  *
  *	@xexyl
  *	https://xexyl.net
@@ -718,14 +718,14 @@ canon_path(char const *orig_path,
 		    /*
 		     * push component onto the path stack
 		     *
-		     * NOTE: If the path stack were to grow to larger than INT32_MAX,
+		     * NOTE: If the path stack were to grow to larger than INT_LEAST32_MAX,
 		     *	     and if we have a maximum depth allowed, we will declare
 		     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 		     *	     .. (dot-dot) might be able to later reduce the depth.
 		     */
 		    test = dyn_array_push(array, p);
 		    deep = dyn_array_tell(array);
-		    if (max_depth > 0 && deep > INT32_MAX) {
+		    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
 
 			/* path component too deep */
 			dbg(DBG_V3_HIGH, "%s: error #7: path depth: %d max_depth: %d", __func__, deep, max_depth);
@@ -799,14 +799,14 @@ canon_path(char const *orig_path,
 		    /*
 		     * push component onto the path stack
 		     *
-		     * NOTE: If the path stack were to grow to larger than INT32_MAX,
+		     * NOTE: If the path stack were to grow to larger than INT_LEAST32_MAX,
 		     *	     and if we have a maximum depth allowed, we will declare
 		     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 		     *	     .. (dot-dot) might be able to later reduce the depth.
 		     */
 		    test = dyn_array_push(array, p);
 		    deep = dyn_array_tell(array);
-		    if (max_depth > 0 && deep > INT32_MAX) {
+		    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
 
 			/* path component too deep */
 			dbg(DBG_V3_HIGH, "%s: error #12: path depth: %d max_depth: %d", __func__, deep, max_depth);
@@ -871,14 +871,14 @@ canon_path(char const *orig_path,
 	    /*
 	     * push component onto the path stack
 	     *
-	     * NOTE: If the path stack were to grow to larger than INT32_MAX,
+	     * NOTE: If the path stack were to grow to larger than INT_LEAST32_MAX,
 	     *	     and if we have a maximum depth allowed, we will declare
 	     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 	     *	     .. (dot-dot) might be able to later reduce the depth.
 	     */
 	    test = dyn_array_push(array, p);
 	    deep = dyn_array_tell(array);
-	    if (max_depth > 0 && deep > INT32_MAX) {
+	    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
 
 		/* path component too deep */
 		dbg(DBG_V3_HIGH, "%s: error #16: path depth: %d max_depth: %d", __func__, deep, max_depth);

@@ -5,7 +5,7 @@
  *
  *      -- J.R.R. Tolkien
  *
- * Copyright (c) 1991,2008,2014-2016,2022-2025 by Landon Curt Noll.  All Rights Reserved.
+ * Copyright (c) 1991,2008,2014-2016,2022-2026 by Landon Curt Noll.  All Rights Reserved.
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation for any purpose and without fee is hereby granted,
@@ -24,7 +24,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * This code was developed between 1991-2025 by Landon Curt Noll:
+ * This code was developed between 1991-2026 by Landon Curt Noll:
  *
  *	chongo (Landon Curt Noll, http://www.isthe.com/chongo/index.html) /\oo/\
  *
@@ -448,15 +448,12 @@ safe_path_str(char const *path_str, bool any_case, bool slash_ok)
     } else if (path_str[0] == '/' && slash_ok == false) {
 	/* string starts with '/' (slash), however slash_ok is false, thus is NOT safe */
 	return false;
-    } else if (!isascii(path_str[0])) {
-	/* string starts with a non-ASCII character, thus is NOT safe */
-	return false;
     } else if (path_str[0] != '.' && path_str[0] != '_' &&
-	      any_case == true && !isalnum(path_str[0])) {
+	      any_case == true && !isalnum((unsigned char)path_str[0])) {
 	/* string does NOT start with an UPPERcase character NOR a lowercase character, NOR a digit, thus is NOT safe */
 	return false;
     } else if (path_str[0] != '.' && path_str[0] != '_' &&
-	       any_case == false && !(islower(path_str[0]) || isdigit(path_str[0]))) {
+	       any_case == false && !(islower((unsigned char)path_str[0]) || isdigit((unsigned char)path_str[0]))) {
 	/* string does NOT start with a lowercase character, NOR a digit, thus is NOT safe */
 	return false;
     }

@@ -1,3 +1,14 @@
+## Release 2.0.3 2026-06-13
+
+Remove calls to `isascii()` as this function was removed from POSIX.1-2024 (it
+was deprecated in POSIX.1-2008).
+
+Also the `ctype.h` `to*()`, although expecting an int, they must be
+representable as an unsigned char or EOF, so the args are now cast to unsigned
+char.
+
+
+
 ## Release 2.0.2 2026-06-02
 
 Don't use `INT32_MAX` but rather `INT_LEAST32_MAX` in code, to correspond to the

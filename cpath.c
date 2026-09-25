@@ -53,6 +53,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <unistd.h>
 
 /*
@@ -125,6 +126,8 @@ static int exit_code = 0;		/* exit with this code */
  */
 static void process_sanity(char const *cpath, enum path_sanity sanity, size_t path_len, int_least32_t deep);
 static void usage(int exitcode, char const *prog, char const *str);
+static bool parse_size_opt(char const *optarg, size_t *value);
+static bool parse_depth_opt(char const *optarg, int_least32_t *value);
 
 
 int
@@ -180,25 +183,19 @@ main(int argc, char *argv[])
 	    not_reached();
 	    break;
 	case 'm':
-	    errno = 0;
-	    max_path_len = (size_t) strtoumax(optarg, NULL, 0);
-	    if (errno != 0) {
+	    if (!parse_size_opt(optarg, &max_path_len)) {
 		errp(3, program, "unable to convert -m %s into a size_t", optarg); /*ooo*/
 		not_reached();
 	    }
 	    break;
 	case 'M':
-	    errno = 0;
-	    max_filename_len = (size_t) strtoumax(optarg, NULL, 0);
-	    if (errno != 0) {
+	    if (!parse_size_opt(optarg, &max_filename_len)) {
 		errp(3, program, "unable to convert -M %s into a size_t", optarg); /*ooo*/
 		not_reached();
 	    }
 	    break;
 	case 'd':
-	    errno = 0;
-	    max_depth = (int_least32_t) strtol(optarg, NULL, 0);
-	    if (errno != 0) {
+	    if (!parse_depth_opt(optarg, &max_depth)) {
 		errp(3, program, "unable to convert -d %s into an int_least32_t", optarg); /*ooo*/
 		not_reached();
 	    }
@@ -265,7 +262,7 @@ main(int argc, char *argv[])
 	dbg(DBG_MED, "%s: max canonicalized path depth is unlimited", CPATH_BASENAME);
     }
     dbg(DBG_MED, "%s: absolute paths: %s", CPATH_BASENAME, (only_relative ? "disallowed" : "allowed"));
-    dbg(DBG_MED, "%s: conversion of paths to lower case: %s", CPATH_BASENAME, (true ? "enabled" : "disabled"));
+    dbg(DBG_MED, "%s: conversion of paths to lower case: %s", CPATH_BASENAME, (lower_case ? "enabled" : "disabled"));
     if (safe_chk) {
 	dbg(DBG_MED, "%s: safety test each canonical path component: enabled", CPATH_BASENAME);
 	if (reg_compiled) {
@@ -517,9 +514,11 @@ usage(int exitcode, char const *prog, char const *str)
 	str = "((NULL str))";
 	warn(CPATH_BASENAME, "\nin usage(): str was NULL, forcing it to be: %s\n", str);
     }
+
+
     if (prog == NULL) {
-	prog = "((NULL prog))";
-	warn(CPATH_BASENAME, "\nin usage(): prog was NULL, forcing it to be: %s\n", prog);
+    	prog = "((NULL prog))";
+    	warn(CPATH_BASENAME, "\nin usage(): prog was NULL, forcing it to be: %s\n", prog);
     }
 
     /*
@@ -535,4 +534,63 @@ usage(int exitcode, char const *prog, char const *str)
                                                      pr_version);
     exit(exitcode); /*ooo*/
     not_reached();
+}
+
+
+/*
+ * parse_size_opt - parse a non-negative size_t command line option
+ */
+static bool
+parse_size_opt(char const *optarg, size_t *value)
+{
+    char *endptr = NULL;
+    unsigned char const *p = NULL;
+    unsigned char const *trail = NULL;
+    uintmax_t parsed = 0;
+
+    if (optarg == NULL || value == NULL || optarg[0] == '\0') {
+	return false;
+    }
+    for (p = (unsigned char const *)optarg; isspace(*p); ++p) {
+	/* empty */
+    }
+    if (*p == '\0' || *p == '-') {
+	return false;
+    }
+    errno = 0;
+    parsed = strtoumax(optarg, &endptr, 0);
+    for (trail = (unsigned char const *)endptr; trail != NULL && isspace(*trail); ++trail) {
+	/* empty */
+    }
+    if (errno != 0 || endptr == optarg || (trail != NULL && *trail != '\0') || (size_t)parsed != parsed) {
+	return false;
+    }
+    *value = (size_t)parsed;
+    return true;
+}
+
+
+/*
+ * parse_depth_opt - parse an int_least32_t command line option
+ */
+static bool
+parse_depth_opt(char const *optarg, int_least32_t *value)
+{
+    char *endptr = NULL;
+    unsigned char const *trail = NULL;
+    intmax_t parsed = 0;
+
+    if (optarg == NULL || value == NULL || optarg[0] == '\0') {
+	return false;
+    }
+    errno = 0;
+    parsed = strtoimax(optarg, &endptr, 0);
+    for (trail = (unsigned char const *)endptr; trail != NULL && isspace(*trail); ++trail) {
+	/* empty */
+    }
+    if (errno != 0 || endptr == optarg || (trail != NULL && *trail != '\0') || (int_least32_t)parsed != parsed) {
+	return false;
+    }
+    *value = (int_least32_t)parsed;
+    return true;
 }

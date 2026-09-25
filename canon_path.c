@@ -701,12 +701,15 @@ canon_path(char const *orig_path,
 	    /*
 	     * case: component stack is empty
 	     */
-	    deep = dyn_array_tell(array);
-	    if (deep < 0) {
-		dbg(DBG_V2_HIGH, "%s: error #4a: dyn_array_tell() returned: %d", __func__, deep);
+	    intmax_t tell_ret;	/* dyn_array_tell() return value */
+
+	    tell_ret = dyn_array_tell(array);
+	    if (tell_ret < 0 || (int_least32_t)tell_ret != tell_ret) {
+		dbg(DBG_V2_HIGH, "%s: error #4a: dyn_array_tell() returned: %jd", __func__, tell_ret);
 		report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
 		return NULL;
 	    }
+	    deep = (int_least32_t)tell_ret;
 	    if (deep <= 0) {
 
 		/*
@@ -748,19 +751,21 @@ canon_path(char const *orig_path,
 		    /*
 		     * push component onto the path stack
 		     *
-		     * NOTE: If the path stack were to grow to larger than INT_LEAST32_MAX,
-		     *	     and if we have a maximum depth allowed, we will declare
+		     * NOTE: If we have a maximum depth allowed, we will declare
 		     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 		     *	     .. (dot-dot) might be able to later reduce the depth.
 		     */
 		    test = dyn_array_push(array, p);
-		    deep = dyn_array_tell(array);
-		    if (deep < 0) {
-			dbg(DBG_V2_HIGH, "%s: error #8a: dyn_array_tell() returned: %d", __func__, deep);
+		    intmax_t tell_ret;	/* dyn_array_tell() return value */
+
+		    tell_ret = dyn_array_tell(array);
+		    if (tell_ret < 0 || (int_least32_t)tell_ret != tell_ret) {
+			dbg(DBG_V2_HIGH, "%s: error #8a: dyn_array_tell() returned: %jd", __func__, tell_ret);
 			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
 			return NULL;
 		    }
-		    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
+		    deep = (int_least32_t)tell_ret;
+		    if (max_depth > 0 && deep > max_depth) {
 
 			/* path component too deep */
 			dbg(DBG_V3_HIGH, "%s: error #7: path depth: %d max_depth: %d", __func__, deep, max_depth);
@@ -834,19 +839,21 @@ canon_path(char const *orig_path,
 		    /*
 		     * push component onto the path stack
 		     *
-		     * NOTE: If the path stack were to grow to larger than INT_LEAST32_MAX,
-		     *	     and if we have a maximum depth allowed, we will declare
+		     * NOTE: If we have a maximum depth allowed, we will declare
 		     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 		     *	     .. (dot-dot) might be able to later reduce the depth.
 		     */
 		    test = dyn_array_push(array, p);
-		    deep = dyn_array_tell(array);
-		    if (deep < 0) {
-			dbg(DBG_V2_HIGH, "%s: error #13a: dyn_array_tell() returned: %d", __func__, deep);
+		    intmax_t tell_ret;	/* dyn_array_tell() return value */
+
+		    tell_ret = dyn_array_tell(array);
+		    if (tell_ret < 0 || (int_least32_t)tell_ret != tell_ret) {
+			dbg(DBG_V2_HIGH, "%s: error #13a: dyn_array_tell() returned: %jd", __func__, tell_ret);
 			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
 			return NULL;
 		    }
-		    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
+		    deep = (int_least32_t)tell_ret;
+		    if (max_depth > 0 && deep > max_depth) {
 
 			/* path component too deep */
 			dbg(DBG_V3_HIGH, "%s: error #12: path depth: %d max_depth: %d", __func__, deep, max_depth);
@@ -919,19 +926,21 @@ canon_path(char const *orig_path,
 	    /*
 	     * push component onto the path stack
 	     *
-	     * NOTE: If the path stack were to grow to larger than INT_LEAST32_MAX,
-	     *	     and if we have a maximum depth allowed, we will declare
+	     * NOTE: If we have a maximum depth allowed, we will declare
 	     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 	     *	     .. (dot-dot) might be able to later reduce the depth.
 	     */
 	    test = dyn_array_push(array, p);
-	    deep = dyn_array_tell(array);
-	    if (deep < 0) {
-		dbg(DBG_V2_HIGH, "%s: error #17a: dyn_array_tell() returned: %d", __func__, deep);
+	    intmax_t tell_ret;	/* dyn_array_tell() return value */
+
+	    tell_ret = dyn_array_tell(array);
+	    if (tell_ret < 0 || (int_least32_t)tell_ret != tell_ret) {
+		dbg(DBG_V2_HIGH, "%s: error #17a: dyn_array_tell() returned: %jd", __func__, tell_ret);
 		report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
 		return NULL;
 	    }
-	    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
+	    deep = (int_least32_t)tell_ret;
+	    if (max_depth > 0 && deep > max_depth) {
 
 		/* path component too deep */
 		dbg(DBG_V3_HIGH, "%s: error #16: path depth: %d max_depth: %d", __func__, deep, max_depth);

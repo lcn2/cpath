@@ -762,6 +762,11 @@ canon_path(char const *orig_path,
 			return NULL;
 		    }
 		    test = dyn_array_push(array, p);
+		    if (!test && dyn_array_tell(array) <= old_deep) {
+			dbg(DBG_V2_HIGH, "%s: error #8a: dyn_array_push() failed", __func__);
+			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
 		    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 		    tell_ret = dyn_array_tell(array);
@@ -862,6 +867,11 @@ canon_path(char const *orig_path,
 			return NULL;
 		    }
 		    test = dyn_array_push(array, p);
+		    if (!test && dyn_array_tell(array) <= old_deep) {
+			dbg(DBG_V2_HIGH, "%s: error #13a: dyn_array_push() failed", __func__);
+			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
 		    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 		    tell_ret = dyn_array_tell(array);
@@ -961,6 +971,11 @@ canon_path(char const *orig_path,
 		return NULL;
 	    }
 	    test = dyn_array_push(array, p);
+	    if (!test && dyn_array_tell(array) <= old_deep) {
+		dbg(DBG_V2_HIGH, "%s: error #17a: dyn_array_push() failed", __func__);
+		report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+		return NULL;
+	    }
 	    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 	    tell_ret = dyn_array_tell(array);

@@ -1664,6 +1664,56 @@ elif [[ $V_FLAG -ge 3 ]]; then
 fi
 
 
+# test negative -d argument
+#
+TST_STR="$CPATH -d -1 ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=0
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -d -1 ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: unexpected output on stderr for: $TST_STR" 1>&2
+	echo "$0: ERROR: unexpected stderr starts below:" 1>&2
+	cat "$TMP_STDERR" 1>&2
+	echo "$0: ERROR: unexpected stderr ends above:" 1>&2
+	exit 1
+    fi
+    echo "a" | cmp -s "$TMP_STDOUT" -
+    status="$?"
+    if [[ $status -ne 0 ]]; then
+	echo "$0: ERROR: unexpected output for: $TST_STR" 1>&2
+	echo "$0: ERROR: output difference starts below:" 1>&2
+	echo "a" | diff -u "$TMP_STDOUT" - 1>&2
+	echo "$0: ERROR: output difference ends above:" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
 # test out-of-range -d argument
 #
 TST_STR="$CPATH -d 999999999999999999999999999999 ./a"

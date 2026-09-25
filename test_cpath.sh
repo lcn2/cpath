@@ -514,7 +514,6 @@ if [[ -z $NOOP ]]; then
     EXPECTED_CODE=0
     :>"$TMP_STDOUT"
     :>"$TMP_STDERR"
-    echo "$P_OUT" > "$P_OUT"
     if [[ $V_FLAG -ge 1 ]]; then
 	echo "$0: debug[1]: about to run: $TST_STR"
     fi
@@ -541,10 +540,10 @@ if [[ -z $NOOP ]]; then
 	echo "$0: ERROR: no output on stdout for: $TST_STR" 1>&2
 	exit 1
     fi
-    if ! cmp -s "$P_OUT" "$TMP_STDOUT"; then
+    if ! printf '%s\n' "$P_OUT" | cmp -s "$TMP_STDOUT" -; then
 	echo "$0: ERROR: unexpected output for: $TST_STR" 1>&2
 	echo "$0: ERROR: output difference starts below:" 1>&2
-	diff -u "$P_OUT" "$TMP_STDOUT" 1>&2
+	printf '%s\n' "$P_OUT" | diff -u "$TMP_STDOUT" - 1>&2
 	echo "$0: ERROR: output difference ends above:" 1>&2
 	exit 1
     fi

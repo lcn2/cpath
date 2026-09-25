@@ -1279,6 +1279,7 @@ canon_path(char const *orig_path,
 	    if (strlcpy_ret >= tmp_len) {
 		/* canonicalized path length mis-calculation */
 		dbg(DBG_V2_HIGH, "%s: error #27a: %s: %s", __func__, path_sanity_name(sanity), path_sanity_error(sanity));
+		free(ret_path);
 		report_canon_err(PATH_ERR_WRONG_LEN, sanity_p, len_p, depth_p, path, array);
 		return NULL;
 	    }
@@ -1289,6 +1290,7 @@ canon_path(char const *orig_path,
 	if (strlcpy_ret >= tmp_len) {
 	    /* canonicalized path length mis-calculation */
 	    dbg(DBG_V2_HIGH, "%s: error #28: %s: %s", __func__, path_sanity_name(sanity), path_sanity_error(sanity));
+	    free(ret_path);
 	    report_canon_err(PATH_ERR_WRONG_LEN, sanity_p, len_p, depth_p, path, array);
 	    return NULL;
 	}

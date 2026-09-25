@@ -47,7 +47,7 @@
 
 # setup
 #
-export VERSION="1.0.0 2025-10-15"
+export VERSION="1.1.0 2026-09-25"
 NAME=$(basename "$0")
 export NAME
 #
@@ -490,6 +490,60 @@ if [[ -z $NOOP ]]; then
 	echo "$0: ERROR: unexpected output for: $TST_STR" 1>&2
 	echo "$0: ERROR: output difference starts below:" 1>&2
 	diff -u "$OUT" "$TMP_STDOUT" 1>&2
+	echo "$0: ERROR: output difference ends above:" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# single element pop regression test
+#
+P_STR="a/../b"
+P_OUT="b"
+TST_STR="$CPATH $P_STR"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=0
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" "$P_STR" > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: unexpected output on stderr for: $TST_STR" 1>&2
+	echo "$0: ERROR: unexpected stderr starts below:" 1>&2
+	cat "$TMP_STDERR" 1>&2
+	echo "$0: ERROR: unexpected stderr ends above:" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDOUT ]]; then
+	echo "$0: ERROR: no output on stdout for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if ! printf '%s\n' "$P_OUT" | cmp -s "$TMP_STDOUT" -; then
+	echo "$0: ERROR: unexpected output for: $TST_STR" 1>&2
+	echo "$0: ERROR: output difference starts below:" 1>&2
+	printf '%s\n' "$P_OUT" | diff -u "$TMP_STDOUT" - 1>&2
 	echo "$0: ERROR: output difference ends above:" 1>&2
 	exit 1
     fi
@@ -1491,6 +1545,512 @@ if [[ -z $NOOP ]]; then
     # run test
     #
     "$CPATH" -D "$P_STR" > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test invalid -m argument
+#
+TST_STR="$CPATH -m -1 ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -m -1 ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test malformed -m argument
+#
+TST_STR="$CPATH -m 2x ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -m 2x ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test whitespace-prefixed invalid -m argument
+#
+TST_STR="$CPATH -m \" 2\" ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -m " 2" ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test whitespace-suffixed invalid -m argument
+#
+TST_STR="$CPATH -m \"2 \" ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -m "2 " ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test invalid -M argument
+#
+TST_STR="$CPATH -M -1 ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -M -1 ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test whitespace-prefixed invalid -M argument
+#
+TST_STR="$CPATH -M \" 2\" ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -M " 2" ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test whitespace-suffixed invalid -M argument
+#
+TST_STR="$CPATH -M \"2 \" ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -M "2 " ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test malformed -M argument
+#
+TST_STR="$CPATH -M 2x ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -M 2x ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test negative -d argument
+#
+TST_STR="$CPATH -d -1 ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=0
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -d -1 ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: unexpected output on stderr for: $TST_STR" 1>&2
+	echo "$0: ERROR: unexpected stderr starts below:" 1>&2
+	cat "$TMP_STDERR" 1>&2
+	echo "$0: ERROR: unexpected stderr ends above:" 1>&2
+	exit 1
+    fi
+    echo "a" | cmp -s "$TMP_STDOUT" -
+    status="$?"
+    if [[ $status -ne 0 ]]; then
+	echo "$0: ERROR: unexpected output for: $TST_STR" 1>&2
+	echo "$0: ERROR: output difference starts below:" 1>&2
+	echo "a" | diff -u "$TMP_STDOUT" - 1>&2
+	echo "$0: ERROR: output difference ends above:" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test out-of-range -d argument
+#
+TST_STR="$CPATH -d 999999999999999999999999999999 ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -d 999999999999999999999999999999 ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test whitespace-prefixed invalid -d argument
+#
+TST_STR="$CPATH -d \" 2\" ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -d " 2" ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test whitespace-suffixed invalid -d argument
+#
+TST_STR="$CPATH -d \"2 \" ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -d "2 " ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
+    status="$?"
+
+    # verify test results
+    #
+    if [[ $status -ne $EXPECTED_CODE ]]; then
+	echo "$0: ERROR: $TST_STR failed, error: $status != $EXPECTED_CODE" 1>&2
+	exit 1
+    fi
+    if [[ ! -s $TMP_STDERR ]]; then
+	echo "$0: ERROR: no output on stderr for: $TST_STR" 1>&2
+	exit 1
+    fi
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: test OK: expected status: $EXPECTED_CODE $TST_STR"
+    fi
+
+elif [[ $V_FLAG -ge 3 ]]; then
+    echo "$0: debug[3]: due to -n, the following test was bypassed: $TST_STR" 1>&2
+fi
+
+
+# test malformed numeric argument
+#
+TST_STR="$CPATH -d 2x ./a"
+if [[ -z $NOOP ]]; then
+
+    # test setup
+    #
+    EXPECTED_CODE=3
+    :>"$TMP_STDOUT"
+    :>"$TMP_STDERR"
+    if [[ $V_FLAG -ge 1 ]]; then
+	echo "$0: debug[1]: about to run: $TST_STR"
+    fi
+
+    # run test
+    #
+    "$CPATH" -d 2x ./a > "$TMP_STDOUT" 2> "$TMP_STDERR"
     status="$?"
 
     # verify test results

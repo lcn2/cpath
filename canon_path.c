@@ -596,7 +596,7 @@ canon_path(char const *orig_path,
     char *p = NULL;		/* path component */
     char **q = NULL;		/* address of a dynamic array string element */
     int_least32_t deep = 0;	/* path depth (see note above this function) */
-    bool test = true;		/* true ==> passed test, false == failed test */
+    bool test = true;		/* true ==> path safety test passed */
     int regexec_ret = 0;	/* regexec(3) return code */
     char *ret_path = NULL;	/* malloced canonicalized path to return */
     size_t strlcpy_ret = 0;	/* private_strlcpy() return value */
@@ -755,7 +755,7 @@ canon_path(char const *orig_path,
 		     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 		     *	     .. (dot-dot) might be able to later reduce the depth.
 		     */
-		    test = dyn_array_push(array, p);
+		    (void)dyn_array_push(array, p);
 		    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 		    tell_ret = dyn_array_tell(array);
@@ -775,7 +775,6 @@ canon_path(char const *orig_path,
 			return NULL;
 		    }
 		    dbg(DBG_V3_HIGH, "%s: #0: pushed path component on stack, depth: %d", __func__, deep);
-		    dbg(DBG_V4_HIGH, "%s: #0: data moved: %s", __func__, booltostr(test));
 
 		/*
 		 * case: For an absolute path that is now at /, we simply toss this .. (dot-dot).
@@ -843,7 +842,7 @@ canon_path(char const *orig_path,
 		     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 		     *	     .. (dot-dot) might be able to later reduce the depth.
 		     */
-		    test = dyn_array_push(array, p);
+		    (void)dyn_array_push(array, p);
 		    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 		    tell_ret = dyn_array_tell(array);
@@ -863,7 +862,6 @@ canon_path(char const *orig_path,
 			return NULL;
 		    }
 		    dbg(DBG_V3_HIGH, "%s: #1: pushed path component on stack, depth: %d", __func__, deep);
-		    dbg(DBG_V4_HIGH, "%s: #1: data moved: %s", __func__, booltostr(test));
 
 		/*
 		 * case: top (i.e., the previous path) the component stack is NOT .. (dot-dot)
@@ -930,7 +928,7 @@ canon_path(char const *orig_path,
 	     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 	     *	     .. (dot-dot) might be able to later reduce the depth.
 	     */
-	    test = dyn_array_push(array, p);
+	    (void)dyn_array_push(array, p);
 	    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 	    tell_ret = dyn_array_tell(array);
@@ -950,7 +948,6 @@ canon_path(char const *orig_path,
 		return NULL;
 	    }
 	    dbg(DBG_V3_HIGH, "%s: #2: pushed path component on stack, depth: %d", __func__, deep);
-	    dbg(DBG_V4_HIGH, "%s: #2: data moved: %s", __func__, booltostr(test));
 	}
     }
 

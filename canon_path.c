@@ -864,12 +864,15 @@ canon_path(char const *orig_path,
 		 * We let the component .. (dot-dot) to pop the previous previous path component from the stack
 		 */
 		} else {
-		    deep = (int_least32_t)dyn_array_pop(array, NULL);
-		    if (deep < 0) {
-			dbg(DBG_V2_HIGH, "%s: error #13b: dyn_array_pop() returned: %d", __func__, deep);
+		    intmax_t pop_ret;	/* dyn_array_pop() return value */
+
+		    pop_ret = dyn_array_pop(array, NULL);
+		    if (pop_ret < 0 || (int_least32_t)pop_ret != pop_ret) {
+			dbg(DBG_V2_HIGH, "%s: error #13b: dyn_array_pop() returned: %jd", __func__, pop_ret);
 			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
 			return NULL;
 		    }
+		    deep = (int_least32_t)pop_ret;
 		    dbg(DBG_V3_HIGH, "%s: .. component stack pop, stack depth: %d", __func__, deep);
 		}
 	    }

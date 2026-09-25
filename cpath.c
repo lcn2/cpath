@@ -517,8 +517,8 @@ usage(int exitcode, char const *prog, char const *str)
 
 
     if (prog == NULL) {
-    	prog = "((NULL prog))";
-    	warn(CPATH_BASENAME, "\nin usage(): prog was NULL, forcing it to be: %s\n", prog);
+	prog = "((NULL prog))";
+	warn(CPATH_BASENAME, "\nin usage(): prog was NULL, forcing it to be: %s\n", prog);
     }
 
     /*

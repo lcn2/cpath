@@ -47,7 +47,7 @@
 
 # setup
 #
-export VERSION="1.0.0 2025-10-15"
+export VERSION="1.1.0 2026-09-25"
 NAME=$(basename "$0")
 export NAME
 #
@@ -514,7 +514,7 @@ if [[ -z $NOOP ]]; then
     EXPECTED_CODE=0
     :>"$TMP_STDOUT"
     :>"$TMP_STDERR"
-    echo "$P_OUT" > "$OUT"
+    echo "$P_OUT" > "$P_OUT"
     if [[ $V_FLAG -ge 1 ]]; then
 	echo "$0: debug[1]: about to run: $TST_STR"
     fi
@@ -541,10 +541,10 @@ if [[ -z $NOOP ]]; then
 	echo "$0: ERROR: no output on stdout for: $TST_STR" 1>&2
 	exit 1
     fi
-    if ! cmp -s "$OUT" "$TMP_STDOUT"; then
+    if ! cmp -s "$P_OUT" "$TMP_STDOUT"; then
 	echo "$0: ERROR: unexpected output for: $TST_STR" 1>&2
 	echo "$0: ERROR: output difference starts below:" 1>&2
-	diff -u "$OUT" "$TMP_STDOUT" 1>&2
+	diff -u "$P_OUT" "$TMP_STDOUT" 1>&2
 	echo "$0: ERROR: output difference ends above:" 1>&2
 	exit 1
     fi

@@ -545,6 +545,7 @@ parse_size_opt(char const *optarg, size_t *value)
 {
     char *endptr = NULL;
     unsigned char const *p = NULL;
+    unsigned char const *trail = NULL;
     uintmax_t parsed = 0;
 
     if (optarg == NULL || value == NULL || optarg[0] == '\0') {
@@ -558,7 +559,10 @@ parse_size_opt(char const *optarg, size_t *value)
     }
     errno = 0;
     parsed = strtoumax(optarg, &endptr, 0);
-    if (errno != 0 || endptr == optarg || (endptr != NULL && *endptr != '\0') || (size_t)parsed != parsed) {
+    for (trail = (unsigned char const *)endptr; trail != NULL && isspace(*trail); ++trail) {
+	/* empty */
+    }
+    if (errno != 0 || endptr == optarg || (trail != NULL && *trail != '\0') || (size_t)parsed != parsed) {
 	return false;
     }
     *value = (size_t)parsed;
@@ -573,6 +577,7 @@ static bool
 parse_depth_opt(char const *optarg, int_least32_t *value)
 {
     char *endptr = NULL;
+    unsigned char const *trail = NULL;
     intmax_t parsed = 0;
 
     if (optarg == NULL || value == NULL || optarg[0] == '\0') {
@@ -580,7 +585,10 @@ parse_depth_opt(char const *optarg, int_least32_t *value)
     }
     errno = 0;
     parsed = strtoimax(optarg, &endptr, 0);
-    if (errno != 0 || endptr == optarg || (endptr != NULL && *endptr != '\0') || (int_least32_t)parsed != parsed) {
+    for (trail = (unsigned char const *)endptr; trail != NULL && isspace(*trail); ++trail) {
+	/* empty */
+    }
+    if (errno != 0 || endptr == optarg || (trail != NULL && *trail != '\0') || (int_least32_t)parsed != parsed) {
 	return false;
     }
     *value = (int_least32_t)parsed;

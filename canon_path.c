@@ -100,6 +100,7 @@ const char *const cpath_version = CPATH_VERSION;	/* format: major.minor YYYY-MM-
  * static functions
  */
 static size_t private_strlcat(char *dst, const char *src, size_t dsize);
+static bool checked_add_size_t(size_t *value, size_t add);
 
 
 /*
@@ -153,6 +154,8 @@ private_strlcat(char *dst, const char *src, size_t dsize)
     while (n-- != 0 && *dst != '\0') {
 	dst++;
     }
+
+
     dlen = dst - odst;
     n = dsize - dlen;
 
@@ -169,6 +172,26 @@ private_strlcat(char *dst, const char *src, size_t dsize)
     *dst = '\0';
 
     return(dlen + (src - osrc));	/* count does not include NUL */
+}
+
+
+/*
+ * checked_add_size_t - add add to *value if no size_t overflow would occur
+ */
+static bool
+checked_add_size_t(size_t *value, size_t add)
+{
+    size_t sum;
+
+    if (value == NULL) {
+	return false;
+    }
+    sum = *value + add;
+    if (sum < *value) {
+	return false;
+    }
+    *value = sum;
+    return true;
 }
 
 
@@ -644,6 +667,11 @@ canon_path(char const *orig_path,
      * create path component stack
      */
     array = dyn_array_create(sizeof(char *), PATH_CHUNK_SIZE, PATH_INITIAL_SIZE, true);
+    if (array == NULL) {
+	dbg(DBG_V2_HIGH, "%s: error #3a %s: %s", __func__, path_sanity_name(sanity), path_sanity_error(sanity));
+	report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+	return NULL;
+    }
 
     /*
      * process each path component
@@ -674,6 +702,11 @@ canon_path(char const *orig_path,
 	     * case: component stack is empty
 	     */
 	    deep = dyn_array_tell(array);
+	    if (deep < 0) {
+		dbg(DBG_V2_HIGH, "%s: error #4a: dyn_array_tell() returned: %d", __func__, deep);
+		report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+		return NULL;
+	    }
 	    if (deep <= 0) {
 
 		/*
@@ -722,6 +755,11 @@ canon_path(char const *orig_path,
 		     */
 		    test = dyn_array_push(array, p);
 		    deep = dyn_array_tell(array);
+		    if (deep < 0) {
+			dbg(DBG_V2_HIGH, "%s: error #8a: dyn_array_tell() returned: %d", __func__, deep);
+			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
 		    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
 
 			/* path component too deep */
@@ -803,6 +841,11 @@ canon_path(char const *orig_path,
 		     */
 		    test = dyn_array_push(array, p);
 		    deep = dyn_array_tell(array);
+		    if (deep < 0) {
+			dbg(DBG_V2_HIGH, "%s: error #13a: dyn_array_tell() returned: %d", __func__, deep);
+			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
 		    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
 
 			/* path component too deep */
@@ -822,6 +865,11 @@ canon_path(char const *orig_path,
 		 */
 		} else {
 		    deep = (int_least32_t)dyn_array_pop(array, NULL);
+		    if (deep < 0) {
+			dbg(DBG_V2_HIGH, "%s: error #13b: dyn_array_pop() returned: %d", __func__, deep);
+			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
 		    dbg(DBG_V3_HIGH, "%s: .. component stack pop, stack depth: %d", __func__, deep);
 		}
 	    }
@@ -860,7 +908,7 @@ canon_path(char const *orig_path,
 		 * convert UPPER case to lower case
 		 */
 		for (i=0; i < comp_len; ++i) {
-		    p[i] = tolower(p[i]);
+		    p[i] = (char)tolower((unsigned char)p[i]);
 		}
 		dbg(DBG_V3_HIGH, "%s: lower case path component[%zu]: %s", __func__, i, p);
 	    }
@@ -875,6 +923,11 @@ canon_path(char const *orig_path,
 	     */
 	    test = dyn_array_push(array, p);
 	    deep = dyn_array_tell(array);
+	    if (deep < 0) {
+		dbg(DBG_V2_HIGH, "%s: error #17a: dyn_array_tell() returned: %d", __func__, deep);
+		report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+		return NULL;
+	    }
 	    if (max_depth > 0 && deep > INT_LEAST32_MAX) {
 
 		/* path component too deep */
@@ -913,7 +966,15 @@ canon_path(char const *orig_path,
      * If orig_path is a relative path, then the canonicalized path length is one less than if
      * it were a absolute path because the canonicalized path length doesn't start with "/" (slash).
      */
-    path_len = (relative) ? (deep>0 ? deep-1 : 0) : deep;
+    if (deep < 0) {
+	dbg(DBG_V2_HIGH, "%s: error #19a: negative path depth: %d", __func__, deep);
+	report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+	return NULL;
+    }
+    path_len = (size_t)deep;
+    if (relative && path_len > 0) {
+	--path_len;
+    }
     for (q = dyn_array_first(array, char *); q < dyn_array_beyond(array, char *); ++q) {
 
 	/* paranoia */
@@ -994,7 +1055,12 @@ canon_path(char const *orig_path,
 	}
 
 	/* sum component length */
-	path_len += strlen(*q);
+	comp_len = strlen(*q);
+	if (!checked_add_size_t(&path_len, comp_len)) {
+	    dbg(DBG_V2_HIGH, "%s: error #22a: path length overflow", __func__);
+	    report_canon_err(PATH_ERR_PATH_TOO_LONG, sanity_p, len_p, depth_p, path, array);
+	    return NULL;
+	}
     }
 
     /*
@@ -1080,7 +1146,13 @@ canon_path(char const *orig_path,
      * NOTE: The special case of a "/" (slash) or a "." (dot) canonicalized path
      *	     has been already handled above.
      */
-    ret_path = calloc(1, path_len+1+1);	/* +1 for trailing NUL, +1 for paranoia */
+    tmp_len = path_len;
+    if (!checked_add_size_t(&tmp_len, 2)) {
+	dbg(DBG_V2_HIGH, "%s: error #25a: path length overflow", __func__);
+	report_canon_err(PATH_ERR_PATH_TOO_LONG, sanity_p, len_p, depth_p, path, array);
+	return NULL;
+    }
+    ret_path = calloc(1, tmp_len);	/* +1 for trailing NUL, +1 for paranoia */
     if (ret_path == NULL) {
 	/* malloc failure */
 	dbg(DBG_V2_HIGH, "%s: error #26: %s: %s", __func__, path_sanity_name(sanity), path_sanity_error(sanity));
@@ -1120,7 +1192,13 @@ canon_path(char const *orig_path,
 	    /*
 	     * case: a subsequent component of the canonicalized path
 	     */
-	    strcat(ret_path, "/");
+	    strlcpy_ret = private_strlcat(ret_path, "/", path_len+1);
+	    if (strlcpy_ret >= path_len+1) {
+		/* canonicalized path length mis-calculation */
+		dbg(DBG_V2_HIGH, "%s: error #27a: %s: %s", __func__, path_sanity_name(sanity), path_sanity_error(sanity));
+		report_canon_err(PATH_ERR_WRONG_LEN, sanity_p, len_p, depth_p, path, array);
+		return NULL;
+	    }
 	}
 
 	/* append component from stack */

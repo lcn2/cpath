@@ -1192,8 +1192,8 @@ canon_path(char const *orig_path,
 	    /*
 	     * case: a subsequent component of the canonicalized path
 	     */
-	    strlcpy_ret = private_strlcat(ret_path, "/", path_len+1);
-	    if (strlcpy_ret >= path_len+1) {
+	    strlcpy_ret = private_strlcat(ret_path, "/", tmp_len);
+	    if (strlcpy_ret >= tmp_len) {
 		/* canonicalized path length mis-calculation */
 		dbg(DBG_V2_HIGH, "%s: error #27a: %s: %s", __func__, path_sanity_name(sanity), path_sanity_error(sanity));
 		report_canon_err(PATH_ERR_WRONG_LEN, sanity_p, len_p, depth_p, path, array);
@@ -1202,8 +1202,8 @@ canon_path(char const *orig_path,
 	}
 
 	/* append component from stack */
-	strlcpy_ret = private_strlcat(ret_path, *q, path_len+1);
-	if (strlcpy_ret >= path_len+1) {
+	strlcpy_ret = private_strlcat(ret_path, *q, tmp_len);
+	if (strlcpy_ret >= tmp_len) {
 	    /* canonicalized path length mis-calculation */
 	    dbg(DBG_V2_HIGH, "%s: error #28: %s: %s", __func__, path_sanity_name(sanity), path_sanity_error(sanity));
 	    report_canon_err(PATH_ERR_WRONG_LEN, sanity_p, len_p, depth_p, path, array);

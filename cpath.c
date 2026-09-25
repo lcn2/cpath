@@ -544,16 +544,12 @@ static bool
 parse_size_opt(char const *optarg, size_t *value)
 {
     char *endptr = NULL;
-    unsigned char const *p = NULL;
     uintmax_t parsed = 0;
 
     if (optarg == NULL || value == NULL || optarg[0] == '\0') {
 	return false;
     }
-    for (p = (unsigned char const *)optarg; isspace(*p); ++p) {
-	/* empty */
-    }
-    if (*p == '\0' || *p == '-') {
+    if (isspace((unsigned char)optarg[0]) || optarg[0] == '-') {
 	return false;
     }
     errno = 0;
@@ -576,6 +572,9 @@ parse_depth_opt(char const *optarg, int_least32_t *value)
     intmax_t parsed = 0;
 
     if (optarg == NULL || value == NULL || optarg[0] == '\0') {
+	return false;
+    }
+    if (isspace((unsigned char)optarg[0])) {
 	return false;
     }
     errno = 0;

@@ -727,6 +727,7 @@ canon_path(char const *orig_path,
 		 * case: for a relative path that is now at the beginning of the path, we push .. (dot-dot) if possible
 		 */
 		} else if (relative) {
+		    int_least32_t old_deep = deep;	/* depth before push */
 
 		    /*
 		     * check path component if max_filename_len > 0
@@ -755,7 +756,12 @@ canon_path(char const *orig_path,
 		     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 		     *	     .. (dot-dot) might be able to later reduce the depth.
 		     */
-		    (void)dyn_array_push(array, p);
+		    if (old_deep >= INT_LEAST32_MAX) {
+			dbg(DBG_V3_HIGH, "%s: error #6a: path depth would overflow int_least32_t", __func__);
+			report_canon_err(PATH_ERR_PATH_TOO_DEEP, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
+		    test = dyn_array_push(array, p);
 		    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 		    tell_ret = dyn_array_tell(array);
@@ -765,6 +771,12 @@ canon_path(char const *orig_path,
 			return NULL;
 		    }
 		    deep = (int_least32_t)tell_ret;
+		    if (deep != old_deep + 1) {
+			dbg(DBG_V2_HIGH, "%s: error #8b: dyn_array_push() failed to increase depth: old: %d new: %d",
+			    __func__, old_deep, deep);
+			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
 		    if (max_depth > 0 && deep > max_depth) {
 
 			/* path component too deep */
@@ -775,6 +787,7 @@ canon_path(char const *orig_path,
 			return NULL;
 		    }
 		    dbg(DBG_V3_HIGH, "%s: #0: pushed path component on stack, depth: %d", __func__, deep);
+		    dbg(DBG_V4_HIGH, "%s: #0: data moved: %s", __func__, booltostr(test));
 
 		/*
 		 * case: For an absolute path that is now at /, we simply toss this .. (dot-dot).
@@ -814,6 +827,7 @@ canon_path(char const *orig_path,
 		 * if possible, another .. (dot-dot) component onto the path stack
 		 */
 		if (strcmp(top, "..") == 0) {
+		    int_least32_t old_deep = deep;	/* depth before push */
 
 		    /*
 		     * check path component if max_filename_len > 0
@@ -842,7 +856,12 @@ canon_path(char const *orig_path,
 		     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 		     *	     .. (dot-dot) might be able to later reduce the depth.
 		     */
-		    (void)dyn_array_push(array, p);
+		    if (old_deep >= INT_LEAST32_MAX) {
+			dbg(DBG_V3_HIGH, "%s: error #11a: path depth would overflow int_least32_t", __func__);
+			report_canon_err(PATH_ERR_PATH_TOO_DEEP, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
+		    test = dyn_array_push(array, p);
 		    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 		    tell_ret = dyn_array_tell(array);
@@ -852,6 +871,12 @@ canon_path(char const *orig_path,
 			return NULL;
 		    }
 		    deep = (int_least32_t)tell_ret;
+		    if (deep != old_deep + 1) {
+			dbg(DBG_V2_HIGH, "%s: error #13c: dyn_array_push() failed to increase depth: old: %d new: %d",
+			    __func__, old_deep, deep);
+			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
 		    if (max_depth > 0 && deep > max_depth) {
 
 			/* path component too deep */
@@ -862,6 +887,7 @@ canon_path(char const *orig_path,
 			return NULL;
 		    }
 		    dbg(DBG_V3_HIGH, "%s: #1: pushed path component on stack, depth: %d", __func__, deep);
+		    dbg(DBG_V4_HIGH, "%s: #1: data moved: %s", __func__, booltostr(test));
 
 		/*
 		 * case: top (i.e., the previous path) the component stack is NOT .. (dot-dot)
@@ -886,6 +912,7 @@ canon_path(char const *orig_path,
 	 * process this path component
 	 */
 	} else {
+	    int_least32_t old_deep = deep;	/* depth before push */
 
 	    /*
 	     * check path component if max_filename_len > 0
@@ -928,7 +955,12 @@ canon_path(char const *orig_path,
 	     *	     an immediate PATH_ERR_PATH_TOO_DEEP, even if some later
 	     *	     .. (dot-dot) might be able to later reduce the depth.
 	     */
-	    (void)dyn_array_push(array, p);
+	    if (old_deep >= INT_LEAST32_MAX) {
+		dbg(DBG_V3_HIGH, "%s: error #15a: path depth would overflow int_least32_t", __func__);
+		report_canon_err(PATH_ERR_PATH_TOO_DEEP, sanity_p, len_p, depth_p, path, array);
+		return NULL;
+	    }
+	    test = dyn_array_push(array, p);
 	    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
 	    tell_ret = dyn_array_tell(array);
@@ -938,6 +970,12 @@ canon_path(char const *orig_path,
 		return NULL;
 	    }
 	    deep = (int_least32_t)tell_ret;
+	    if (deep != old_deep + 1) {
+		dbg(DBG_V2_HIGH, "%s: error #17b: dyn_array_push() failed to increase depth: old: %d new: %d",
+		    __func__, old_deep, deep);
+		report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+		return NULL;
+	    }
 	    if (max_depth > 0 && deep > max_depth) {
 
 		/* path component too deep */
@@ -948,6 +986,7 @@ canon_path(char const *orig_path,
 		return NULL;
 	    }
 	    dbg(DBG_V3_HIGH, "%s: #2: pushed path component on stack, depth: %d", __func__, deep);
+	    dbg(DBG_V4_HIGH, "%s: #2: data moved: %s", __func__, booltostr(test));
 	}
     }
 

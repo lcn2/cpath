@@ -905,15 +905,35 @@ canon_path(char const *orig_path,
 		 * We let the component .. (dot-dot) to pop the previous previous path component from the stack
 		 */
 		} else {
-		    intmax_t pop_ret;	/* dyn_array_pop() return value */
+		    int_least32_t old_deep = deep;	/* depth before pop */
+		    intmax_t tell_ret;	/* dyn_array_tell() return value */
 
-		    pop_ret = dyn_array_pop(array, NULL);
-		    if (pop_ret < 0 || (int_least32_t)pop_ret != pop_ret) {
-			dbg(DBG_V2_HIGH, "%s: error #13b: dyn_array_pop() returned: %jd", __func__, pop_ret);
+		    if (old_deep == 1) {
+			dyn_array_clear(array);
+			deep = 0;
+		    } else {
+			intmax_t pop_ret;	/* dyn_array_pop() return value */
+
+			pop_ret = dyn_array_pop(array, NULL);
+			if (pop_ret < 0 || (int_least32_t)pop_ret != pop_ret) {
+			    dbg(DBG_V2_HIGH, "%s: error #13b: dyn_array_pop() returned: %jd", __func__, pop_ret);
+			    report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			    return NULL;
+			}
+			deep = (int_least32_t)pop_ret;
+		    }
+		    tell_ret = dyn_array_tell(array);
+		    if (tell_ret < 0 || (int_least32_t)tell_ret != tell_ret) {
+			dbg(DBG_V2_HIGH, "%s: error #13b: dyn_array_tell() returned: %jd", __func__, tell_ret);
 			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
 			return NULL;
 		    }
-		    deep = (int_least32_t)pop_ret;
+		    if ((int_least32_t)tell_ret != deep || deep != old_deep - 1) {
+			dbg(DBG_V2_HIGH, "%s: error #13d: dyn_array_pop() failed to decrease depth: old: %d new: %d tell: %jd",
+			    __func__, old_deep, deep, tell_ret);
+			report_canon_err(PATH_ERR_MALLOC, sanity_p, len_p, depth_p, path, array);
+			return NULL;
+		    }
 		    dbg(DBG_V3_HIGH, "%s: .. component stack pop, stack depth: %d", __func__, deep);
 		}
 	    }
